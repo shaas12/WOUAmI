@@ -68,7 +68,13 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.campus_map) {
+            return true;
+        }
+        else if (id == R.id.calendar){
+            return true;
+        }
+        else if (id == R.id.res_search){
             return true;
         }
 
