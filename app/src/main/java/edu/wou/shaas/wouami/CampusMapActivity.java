@@ -39,8 +39,12 @@ public class CampusMapActivity extends FragmentActivity implements OnMapReadyCal
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        //LatLng sydney = new LatLng(-34, 151);
+        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        LatLng monmouth = new LatLng(44.8528, -123.2394);
+        mMap.addMarker(new MarkerOptions().position(monmouth).title("Marker in Monmouth"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(monmouth));
     }
 }
