@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,11 +22,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 //import com.google.android.gms.maps.model.TileOverlayOptions;
 //import com.google.android.gms.maps.model.TileProvider;
 //import com.google.android.gms.maps.model.UrlTileProvider;
-import com.google.android.gms.maps.model.GroundOverlay;
+//import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+//import java.net.MalformedURLException;
+//import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,24 +34,39 @@ import java.util.List;
 public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnGroundOverlayClickListener {
 
     private GoogleMap mMap;
-    //private TileOverlay resHallHertTile;
     private GroundOverlay hertGroundOverlay;
     private GroundOverlay hertGroundOverlayRotated;
     private static final LatLng HERITAGE_HALL = new LatLng(44.854315, -123.23854);
+    private static final LatLng HERITAGE_HALL_2 = new LatLng(44.85429, -123.23849);
+    private static final LatLng HERITAGE_HALL_3_4 = new LatLng(44.85432, -123.2385);
+
     private static final LatLng M_HERITAGE_HALL = new LatLng(44.854664, -123.238240);
     private static final LatLng NEAR_HERITAGE_HALL = new LatLng(HERITAGE_HALL.latitude - 0.001, HERITAGE_HALL.longitude - 0.025);
     private final List<BitmapDescriptor> mImages = new ArrayList<BitmapDescriptor>();
+    private SeekBar mTransparencyBar;
+    private int mCurrentEntry = 0;
+    private static final int TRANSPARENCY_MAX = 100;
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_map);
+
+       /* mTransparencyBar = (SeekBar) findViewById(R.id.transparencySeekBar);
+        mTransparencyBar.setMax(TRANSPARENCY_MAX);
+        mTransparencyBar.setProgress(0);*/
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        textView = (TextView) findViewById(R.id.level_text);
+        int floor = mCurrentEntry+1;
+        textView.setTextSize(25);
+        textView.setText("Level "+floor);
     }
     /**
      * Manipulates the map once available.
@@ -78,10 +96,13 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
         // Register a listener to respond to clicks on GroundOverlays.
         mMap.setOnGroundOverlayClickListener(this);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(HERITAGE_HALL, 11));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(HERITAGE_HALL, 15));
 
         mImages.clear();
         mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_1));
+        mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_2));
+        mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_3));
+        mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_4));
        // mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.);
 
         // Add a small, rotated overlay that is clickable by default
@@ -145,6 +166,49 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
 //                .tileProvider(tileProvider));
 
     }
+    //@Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+    }
+
+    //@Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+   /* //@Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (hertGroundOverlay != null) {
+            hertGroundOverlay.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
+        }
+    }*/
+
+    public void switchImage(View view) {
+        mCurrentEntry = (mCurrentEntry + 1) % mImages.size();
+        hertGroundOverlay.setImage(mImages.get(mCurrentEntry));
+        int floor = mCurrentEntry +1;
+        textView.setText("Level "+floor);
+        if (mCurrentEntry == 1)
+        {
+            hertGroundOverlay.setPosition(HERITAGE_HALL_2);
+        }
+        else if (mCurrentEntry == 0)
+        {
+            hertGroundOverlay.setPosition(HERITAGE_HALL);
+        }
+        else
+        {
+            hertGroundOverlay.setPosition(HERITAGE_HALL_3_4);
+        }
+
+    }
+
+    /**
+     * Toggles the visibility between 100% and 50% when a {@link GroundOverlay} is clicked.
+     */
+    @Override
+    public void onGroundOverlayClick(GroundOverlay groundOverlay) {
+        // Toggle transparency value between 0.0f and 0.5f. Initial default value is 0.0f.
+        hertGroundOverlayRotated.setTransparency(0.5f - hertGroundOverlayRotated.getTransparency());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -174,9 +238,4 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onGroundOverlayClick(GroundOverlay groundOverlay) {
-        // Toggle transparency value between 0.0f and 0.5f. Initial default value is 0.0f.
-        hertGroundOverlay.setTransparency(0.5f - hertGroundOverlay.getTransparency());
-    }
 }
