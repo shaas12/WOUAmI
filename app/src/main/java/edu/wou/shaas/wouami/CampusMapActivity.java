@@ -1,5 +1,6 @@
 package edu.wou.shaas.wouami;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -36,15 +37,22 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
     private GoogleMap mMap;
     private GroundOverlay hertGroundOverlay;
     private GroundOverlay hertGroundOverlayRotated;
+    private GroundOverlay wucGroundOverlay;
     private static final LatLng HERITAGE_HALL = new LatLng(44.854315, -123.23854);
     private static final LatLng HERITAGE_HALL_2 = new LatLng(44.85429, -123.23849);
     private static final LatLng HERITAGE_HALL_3_4 = new LatLng(44.85432, -123.2385);
 
+    private static final LatLng M_WUC = new LatLng(44.8521909,-123.2383); //marker location
+    private static final LatLng WUC_1 = new LatLng(44.85198, -123.238804); //floorplan location
+    private static final LatLng WUC_2 = new LatLng(44.85197, -123.23874); //floorplan location
+
     private static final LatLng M_HERITAGE_HALL = new LatLng(44.854664, -123.238240);
     private static final LatLng NEAR_HERITAGE_HALL = new LatLng(HERITAGE_HALL.latitude - 0.001, HERITAGE_HALL.longitude - 0.025);
-    private final List<BitmapDescriptor> mImages = new ArrayList<BitmapDescriptor>();
+    private final List<BitmapDescriptor> aHeritage = new ArrayList<BitmapDescriptor>();
+    private final List<BitmapDescriptor> aWUC = new ArrayList<BitmapDescriptor>();
     private SeekBar mTransparencyBar;
-    private int mCurrentEntry = 0;
+    private int hertCurrentEntry = 0;
+    private int wucCurrentEntry = 0;
     private static final int TRANSPARENCY_MAX = 100;
     private TextView textView;
 
@@ -64,7 +72,7 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         textView = (TextView) findViewById(R.id.level_text);
-        int floor = mCurrentEntry+1;
+        int floor = hertCurrentEntry+1;
         textView.setTextSize(25);
         textView.setText("Level "+floor);
     }
@@ -90,20 +98,26 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
 //        mMap.addMarker(new MarkerOptions().position(monmouth).title("Marker in Monmouth"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(monmouth , 14.0f));
         mMap.addMarker(new MarkerOptions().position(M_HERITAGE_HALL).title("Heritage Hall"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(M_HERITAGE_HALL , (float) 21.0));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(M_HERITAGE_HALL, (float) 21.0));
+
+        mMap.addMarker(new MarkerOptions().position(M_WUC).title("Werner University Center (WUC)"));
         //Residence Hall Floor Plans...Heritage Hall 1st
     //GROUNDOVERLAY ATTEMPT
         // Register a listener to respond to clicks on GroundOverlays.
-        mMap.setOnGroundOverlayClickListener(this);
+        //mMap.setOnGroundOverlayClickListener(this);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(HERITAGE_HALL, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(M_WUC, 15));//(HERITAGE_HALL, 15));
 
-        mImages.clear();
-        mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_1));
-        mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_2));
-        mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_3));
-        mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_4));
-       // mImages.add(BitmapDescriptorFactory.fromResource(R.drawable.);
+        //Heritage Hall Floorplans
+       /* aHeritage.clear();
+        aHeritage.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_1));
+        aHeritage.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_2));
+        aHeritage.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_3));
+        aHeritage.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_heritage_4));*/
+        //WUC Floorplans
+        aWUC.clear();
+        aWUC.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_wuc_1));
+        aWUC.add(BitmapDescriptorFactory.fromResource(R.drawable.nobkg_wuc_2));
 
         // Add a small, rotated overlay that is clickable by default
         // (set by the initial state of the checkbox.)
@@ -114,10 +128,13 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
                 //.clickable(((CheckBox) findViewById(R.id.toggleClickability)).isChecked()));
 
         // Add a large overlay at Newark on top of the smaller overlay.
-        hertGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(mImages.get(0)).anchor(0, 1)
-                .position(HERITAGE_HALL, 58f, 75f));
+       /* hertGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                .image(aHeritage.get(0)).anchor(0, 1)
+                .position(HERITAGE_HALL, 58f, 75f));*/
 
+        wucGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                .image(aWUC.get(0)).anchor(0, 1)
+                .position(WUC_1, 90f, 79f));
         //mTransparencyBar.setOnSeekBarChangeListener(this);
 
         // Override the default content description on the view, for accessibility mode.
@@ -182,21 +199,34 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
     }*/
 
     public void switchImage(View view) {
-        mCurrentEntry = (mCurrentEntry + 1) % mImages.size();
-        hertGroundOverlay.setImage(mImages.get(mCurrentEntry));
-        int floor = mCurrentEntry +1;
-        textView.setText("Level "+floor);
-        if (mCurrentEntry == 1)
+       /* hertCurrentEntry = (hertCurrentEntry + 1) % aHeritage.size();
+        hertGroundOverlay.setImage(aHeritage.get(hertCurrentEntry));
+        int hertFloor = hertCurrentEntry +1;
+        textView.setText("Level "+hertFloor);
+        if (hertCurrentEntry == 1)
         {
             hertGroundOverlay.setPosition(HERITAGE_HALL_2);
         }
-        else if (mCurrentEntry == 0)
+        else if (hertCurrentEntry == 0)
         {
             hertGroundOverlay.setPosition(HERITAGE_HALL);
         }
         else
         {
             hertGroundOverlay.setPosition(HERITAGE_HALL_3_4);
+        }*/
+
+        wucCurrentEntry = (wucCurrentEntry + 1) % aWUC.size();
+        wucGroundOverlay.setImage(aWUC.get(wucCurrentEntry));
+        int wucFloor = wucCurrentEntry +1;
+        textView.setText("Level " + wucFloor);
+        if (wucCurrentEntry == 0)
+        {
+            wucGroundOverlay.setPosition(WUC_1);
+        }
+        else
+        {
+            wucGroundOverlay.setPosition(WUC_2);
         }
 
     }
@@ -208,6 +238,7 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
         // Toggle transparency value between 0.0f and 0.5f. Initial default value is 0.0f.
         hertGroundOverlayRotated.setTransparency(0.5f - hertGroundOverlayRotated.getTransparency());
+        //wucGroundOverlayRotated.setTransparency(0.5f - hertGroundOverlayRotated.getTransparency());
     }
 
     @Override
@@ -229,9 +260,8 @@ public class CampusMapActivity extends AppCompatActivity implements OnMapReadyCa
             return true;
         }
         else if (id == R.id.calendar){
-            return true;
-        }
-        else if (id == R.id.res_search){
+            Intent intent = new Intent(this, CalActivity.class);
+            startActivity(intent);
             return true;
         }
 

@@ -13,10 +13,10 @@
         android:orderInCategory="100"
         android:title="WOU Calendar"
         app:showAsAction="never" />
-    <item
+    <!--<item
         android:id="@+id/res_search"
         android:orderInCategory="100"
         android:title="Resource Search"
-        app:showAsAction="never" />
+        app:showAsAction="never" />-->
     <!--android:title="@string/action_settings"-->
 </menu>
